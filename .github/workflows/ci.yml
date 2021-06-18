@@ -59,6 +59,6 @@ jobs:
       - uses: actions/download-artifact@v2
       - uses: softprops/action-gh-release@v1
         with:
-          files: */redpwnpow-*
+          files: '*/redpwnpow-*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
