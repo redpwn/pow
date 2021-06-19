@@ -26,12 +26,13 @@ func init() {
 	mod.Sub(mod, one)
 }
 
-type challenge struct {
+type Challenge struct {
 	d uint32
 	x *gmp.Int
 }
 
-func DecodeChallenge(v string) (*challenge, error) {
+// DecodeChallenge decodes a redpwnpow challenge produced by String
+func DecodeChallenge(v string) (*Challenge, error) {
 	parts := strings.SplitN(v, ".", 3)
 	if len(parts) != 3 || parts[0] != version {
 		return nil, errors.New("incorrect version")
@@ -51,27 +52,30 @@ func DecodeChallenge(v string) (*challenge, error) {
 	}
 	d := binary.BigEndian.Uint32(dBytes)
 	x := gmp.NewInt(0).SetBytes(xBytes)
-	return &challenge{d: d, x: x}, nil
+	return &Challenge{d: d, x: x}, nil
 }
 
-func GenerateChallenge(d uint32) *challenge {
+// GenerateChallenge creates a new random challenge
+func GenerateChallenge(d uint32) *Challenge {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
 		panic(err)
 	}
-	return &challenge{
+	return &Challenge{
 		x: gmp.NewInt(0).SetBytes(b),
 		d: d,
 	}
 }
 
-func (c *challenge) String() string {
+// String encodes the challenge in a format that can be decoded by DecodeChallenge
+func (c *Challenge) String() string {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, c.d)
 	return fmt.Sprintf("%s.%s.%s", version, base64.StdEncoding.EncodeToString(b), base64.StdEncoding.EncodeToString(c.x.Bytes()))
 }
 
-func (c challenge) Solve() string {
+// Solve solves the challenge and returns a solution proof that can be checked by Check
+func (c Challenge) Solve() string {
 	for i := uint32(0); i < c.d; i += 1 {
 		c.x.Exp(c.x, exp, mod)
 		c.x.Xor(c.x, one)
@@ -91,7 +95,8 @@ func decodeSolution(s string) (*gmp.Int, error) {
 	return gmp.NewInt(0).SetBytes(yBytes), nil
 }
 
-func (c challenge) Check(s string) (bool, error) {
+// Check verifies that a solution proof from Solve is correct
+func (c Challenge) Check(s string) (bool, error) {
 	y, err := decodeSolution(s)
 	if err != nil {
 		return false, fmt.Errorf("decode solution: %w", err)
