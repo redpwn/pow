@@ -2,14 +2,14 @@
 
 A non-parallelizable proof of work challenge system
 
-## Install Solver
+## Install
 
 To download, cache, and execute an appropriate binary to solve a PoW challenge in a single command, use:
 ```sh
 curl -sSfL https://pwn.red/pow | sh -s challenge
 ```
 
-Static binaries for Linux, Windows, and macOS are available [in GitHub releases](https://github.com/redpwn/pow/releases).
+Static binaries for Linux, Windows, and macOS are also available [in GitHub releases](https://github.com/redpwn/pow/releases).
 
 If Go and libgmp are available, you can compile, install, and run with:
 ```sh
