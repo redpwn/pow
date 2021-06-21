@@ -3,7 +3,7 @@
 # https://github.com/redpwn/pow/blob/master/cmd/redpwnpow/run.sh
 
 set -e
-version=v0.0.2
+version=v0.0.3
 challenge=$1
 run() {
   cache_root=$HOME/.cache/redpwnpow
