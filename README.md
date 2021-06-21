@@ -4,7 +4,7 @@ A non-parallelizable proof of work challenge system
 
 ## Install
 
-To download, cache, and execute an appropriate binary to solve a PoW challenge in a single command, use:
+To download, cache, and execute a binary to solve a PoW challenge in a single command, use:
 ```sh
 curl -sSfL https://pwn.red/pow | sh -s challenge
 ```
@@ -40,7 +40,7 @@ import (
 )
 
 func main() {
-	c := pow.GenerateChallenge()
+	c := pow.GenerateChallenge(5000)
 	fmt.Printf("proof of work: curl -sSfL https://pwn.red/pow | sh -s %s\nsolution: ", c)
 	s, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 	if correct, err := c.Check(s); err == nil && correct {

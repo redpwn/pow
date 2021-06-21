@@ -21,9 +21,9 @@ var (
 )
 
 func init() {
-	mod.Lsh(two, 1278)
-	exp.Div(mod, gmp.NewInt(4))
+	mod.Lsh(one, 1279)
 	mod.Sub(mod, one)
+	exp.Lsh(one, 1277)
 }
 
 type Challenge struct {
@@ -31,7 +31,7 @@ type Challenge struct {
 	x *gmp.Int
 }
 
-// DecodeChallenge decodes a redpwnpow challenge produced by String
+// DecodeChallenge decodes a redpwnpow challenge produced by String.
 func DecodeChallenge(v string) (*Challenge, error) {
 	parts := strings.SplitN(v, ".", 3)
 	if len(parts) != 3 || parts[0] != version {
@@ -55,7 +55,7 @@ func DecodeChallenge(v string) (*Challenge, error) {
 	return &Challenge{d: d, x: x}, nil
 }
 
-// GenerateChallenge creates a new random challenge
+// GenerateChallenge creates a new random challenge.
 func GenerateChallenge(d uint32) *Challenge {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
@@ -67,20 +67,21 @@ func GenerateChallenge(d uint32) *Challenge {
 	}
 }
 
-// String encodes the challenge in a format that can be decoded by DecodeChallenge
+// String encodes the challenge in a format that can be decoded by DecodeChallenge.
 func (c *Challenge) String() string {
 	b := make([]byte, 4)
 	binary.BigEndian.PutUint32(b, c.d)
 	return fmt.Sprintf("%s.%s.%s", version, base64.StdEncoding.EncodeToString(b), base64.StdEncoding.EncodeToString(c.x.Bytes()))
 }
 
-// Solve solves the challenge and returns a solution proof that can be checked by Check
-func (c Challenge) Solve() string {
-	for i := uint32(0); i < c.d; i += 1 {
-		c.x.Exp(c.x, exp, mod)
-		c.x.Xor(c.x, one)
+// Solve solves the challenge and returns a solution proof that can be checked by Check.
+func (c *Challenge) Solve() string {
+	x := gmp.NewInt(0).Set(c.x) // dont mutate c.x
+	for i := uint32(0); i < c.d; i++ {
+		x.Exp(x, exp, mod)
+		x.Xor(x, one)
 	}
-	return fmt.Sprintf("%s.%s", version, base64.StdEncoding.EncodeToString(c.x.Bytes()))
+	return fmt.Sprintf("%s.%s", version, base64.StdEncoding.EncodeToString(x.Bytes()))
 }
 
 func decodeSolution(s string) (*gmp.Int, error) {
@@ -95,19 +96,20 @@ func decodeSolution(s string) (*gmp.Int, error) {
 	return gmp.NewInt(0).SetBytes(yBytes), nil
 }
 
-// Check verifies that a solution proof from Solve is correct
-func (c Challenge) Check(s string) (bool, error) {
+// Check verifies that a solution proof from Solve is correct.
+func (c *Challenge) Check(s string) (bool, error) {
 	y, err := decodeSolution(s)
 	if err != nil {
 		return false, fmt.Errorf("decode solution: %w", err)
 	}
-	for i := uint32(0); i < c.d; i += 1 {
+	for i := uint32(0); i < c.d; i++ {
 		y.Xor(y, one)
 		y.Exp(y, two, mod)
 	}
-	if c.x.Cmp(y) == 0 {
+	x := gmp.NewInt(0).Set(c.x) // dont mutate c.x
+	if x.Cmp(y) == 0 {
 		return true, nil
 	}
-	c.x.Sub(mod, c.x)
-	return c.x.Cmp(y) == 0, nil
+	x.Sub(mod, c.x)
+	return x.Cmp(y) == 0, nil
 }
