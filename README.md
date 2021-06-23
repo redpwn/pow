@@ -24,7 +24,7 @@ redpwnpow is approximately **10x** faster than kCTF's [Python solver](https://gi
 
 ## Go module
 
-[Documentation on pkg.go.dev](https://pkg.go.dev/github.com/redpwn/pow)
+[![Go Reference](https://pkg.go.dev/badge/github.com/redpwn/pow.svg)](https://pkg.go.dev/github.com/redpwn/pow)
 
 ### Challenge example
 

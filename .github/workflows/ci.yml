@@ -56,9 +56,17 @@ jobs:
       - darwin
       - windows
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
+        with:
+          path: build
       - uses: softprops/action-gh-release@v1
         with:
-          files: '*/redpwnpow-*'
+          files: build/*/redpwnpow-*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: cloudflare
+        run: >
+          curl -sSXPUT https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT }}/workers/scripts/pow
+          -H 'authorization:Bearer ${{ secrets.CLOUDFLARE_TOKEN }}' -Hcontent-type:application/javascript
+          -d "addEventListener('fetch',e=>e.respondWith(new Response(atob('$(sed "s|VERSION|${GITHUB_REF#refs/tags/}|g" cmd/redpwnpow/run.sh | base64 -w0)'))))"
