@@ -43,10 +43,24 @@ jobs:
           lib_tmp=$(mktemp -d)
           cp /usr/local/opt/gmp/lib/libgmp.a "$lib_tmp"
           go build -v -ldflags "-w -s -extldflags -L$lib_tmp" -o redpwnpow-darwin-amd64 ./cmd/redpwnpow
+          oci_tmp=$(mktemp -d)
+          ghcr_token=$(curl -f 'https://ghcr.io/token?scope=repository:homebrew/core/gmp:pull' | jq -r .token)
+          curl -fLH "authorization: Bearer $ghcr_token" https://ghcr.io/v2/homebrew/core/gmp/blobs/sha256:ff4ad8d068ba4c14d146abb454991b6c4f246796ec2538593dc5f04ca7593eec | tar xzC "$oci_tmp" --strip-components=2
+          lib_tmp=$(mktemp -d)
+          cp "$oci_tmp/lib/libgmp.a" "$lib_tmp"
+          export SDK_NAME=macosx
+          export SDK_PATH=$(xcrun --show-sdk-path --sdk $SDK_NAME)
+          export CC="$(xcrun -sdk $SDK_PATH --find clang) -arch arm64 -isysroot $SDK_PATH"
+          export CFLAGS="-isysroot $SDK_PATH -arch arm64 -I$SDK_PATH/usr/include"
+          export LD_LIBRARY_PATH="$SDK_PATH/usr/lib"
+          export CGO_LDFLAGS="-isysroot $SDK_PATH -arch arm64 -L$lib_tmp"
+          export CGO_CFLAGS="-isysroot $SDK_PATH -arch arm64 -I/usr/local/include"
+          CGO_ENABLED=1 GOARCH=arm64 go build -v -ldflags '-w -s' -o redpwnpow-darwin-arm64 ./cmd/redpwnpow
+          lipo -create -output redpwnpow-darwin redpwnpow-darwin-amd64 redpwnpow-darwin-arm64
       - uses: actions/upload-artifact@v2
         with:
           name: darwin
-          path: redpwnpow-darwin-*
+          path: redpwnpow-darwin
   windows:
     runs-on: windows-2019
     steps:
