@@ -13,7 +13,7 @@ run() {
         arm*) release=linux-armv6l;;
         *) echo unknown linux architecture >&2; exit 1
       esac;;
-    darwin*) release=darwin-amd64;;
+    darwin*) release=darwin;;
     msys*|mingw*|cygwin*) release=windows-amd64.exe;;
     *) echo unknown operating system >&2; exit 1
   esac

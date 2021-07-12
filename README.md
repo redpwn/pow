@@ -20,7 +20,7 @@ redpwnpow challenge
 ## kCTF
 
 redpwnpow can be used as a drop-in replacement for [kCTF](https://google.github.io/kctf/)'s proof of work solver.
-redpwnpow is approximately **10x** faster than kCTF's [Python solver](https://github.com/google/kctf/blob/v1.0/docker-images/challenge/pow.py).
+redpwnpow is approximately **10x faster** than kCTF's [Python solver](https://github.com/google/kctf/blob/v1.0/docker-images/challenge/pow.py).
 
 ## Go module
 
