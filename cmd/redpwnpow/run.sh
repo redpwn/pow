@@ -1,8 +1,8 @@
 #!/bin/sh
 # redpwnpow proof of work runner
-# https://github.com/redpwn/pow/blob/master/cmd/redpwnpow/run.sh
+# https://github.com/redpwn/pow
 
-set -e
+set -eu
 version=VERSION
 run() {
   case $(uname | tr '[:upper:]' '[:lower:]') in
@@ -17,10 +17,13 @@ run() {
     msys*|mingw*|cygwin*) release=windows-amd64.exe;;
     *) echo unknown operating system >&2; exit 1
   esac
-  cache_root=$HOME/.cache/redpwnpow
+  cache_root=${XDG_CACHE_HOME:-$HOME/.cache}/redpwnpow
   mkdir -p "$cache_root"
   cache_path=$cache_root/redpwnpow-$version-$release
-  [ -e "$cache_path" ] || curl -sSfLo "$cache_path" "https://github.com/redpwn/pow/releases/download/$version/redpwnpow-$release" && chmod u+x "$cache_path"
+  if [ ! -e "$cache_path" ]; then
+    curl -sSfLo "$cache_path" "https://github.com/redpwn/pow/releases/download/$version/redpwnpow-$release"
+    chmod u+x "$cache_path"
+  fi
   "$cache_path" "$@"
 }
 run "$@"

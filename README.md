@@ -20,7 +20,6 @@ redpwnpow challenge
 ## kCTF
 
 redpwnpow can be used as a drop-in replacement for [kCTF](https://google.github.io/kctf/)'s proof of work solver.
-redpwnpow is approximately **10x faster** than kCTF's [Python solver](https://github.com/google/kctf/blob/v1.0/docker-images/challenge/pow.py).
 
 ## Go module
 
@@ -43,10 +42,10 @@ func main() {
 	c := pow.GenerateChallenge(5000)
 	fmt.Printf("proof of work: curl -sSfL https://pwn.red/pow | sh -s %s\nsolution: ", c)
 	s, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-	if correct, err := c.Check(s); err == nil && correct {
-		fmt.Println("correct")
+	if good, err := c.Check(s); err == nil && good {
+		fmt.Println("good")
 	} else {
-		fmt.Println("incorrect")
+		fmt.Println("bad")
 	}
 }
 ```
